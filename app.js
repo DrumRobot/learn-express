@@ -7,8 +7,11 @@ const path = require('path');
 const nunjucks = require('nunjucks');
 
 dotenv.config();
+const { sequelize } = require('./models');
 const indexRouter = require('./routes');
-const userRouter = require('./routes/user');
+const usersRouter = require('./routes/users');
+const commentsRouter = require('./routes/comments');
+
 const app = express();
 app.set('port', process.env.PORT || 3000);
 app.set('view engine', 'html');
@@ -17,6 +20,13 @@ nunjucks.configure('views', {
   express: app,
   watch: true,
 });
+sequelize.sync({ force: false })
+  .then(() => {
+    console.log('데이터베이스 연결 성공');
+  })
+  .catch((err) => {
+    console.error(err);
+  });
 
 app.use(morgan('dev'));
 app.use('/', express.static(path.join(__dirname, 'public')));
@@ -35,7 +45,8 @@ app.use(session({
 }));
 
 app.use('/', indexRouter);
-app.use('/user', userRouter);
+app.use('/users', usersRouter);
+app.use('/comments', commentsRouter);
 
 app.use((req, res, next) => {
   const error =  new Error(`${req.method} ${req.url} 라우터가 없습니다.`);
