@@ -1,7 +1,15 @@
 /* learn-express/app.js */
 const express = require('express');
+const morgan = require('morgan');
+const dotenv = require('dotenv');
+const path = require('path');
+
+dotenv.config();
 const app = express();
 const port = process.env.PORT || 8888;
+
+app.use(morgan('dev'));
+app.use('/', express.static(path.join(__dirname, 'public')));
 
 /* 전처리 미들웨어 */
 app.use((req, res, next) => {
